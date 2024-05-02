@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
 from flask_login import LoginManager, login_user, current_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 from models import User, db
@@ -10,53 +9,65 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SECRET_KEY'] = 'secret-key-goes-here'
 db.init_app(app)
 
-def connect_db():
-    conn = sqlite3.connect(app.config['DATABASE'])
-    conn.row_factory = sqlite3.Row
-    return conn
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login"
 
-def create_db():
-    db = connect_db
-    with app.open_resource('sq_db.sql', mode='r') as f:
-        db.cursor().executescript(f.read())
-    db.commit()
-    db.close()
 
-@login.user_loader
-def load_user(id):
-    return User.query.get(int(id))
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
-        if user is None or not user.check_password(form.password.data):
+        return redirect(url_for('profile'))
+    if request.method== 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user = User.query.get(username = username).first()
+        if user and check_password_hash(user.password, password):
+            login_user(user)
+            return redirect(url_for('profile'))
+        else:
             flash('Invalid username or password')
+    return render_template('login.html')
+
+       
+@app.route('/registr', methods=['GET', 'POST'])
+def registr():
+    if current_user.is_authenticated:
+        return redirect(url_for('profile'))
+    if request.method== 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        email = request.form['email']
+        user = User.query.filter_by(username=username).first()
+
+        if user:
+            flash('Username already taken, please try again')
+        else:
+            hashed_password = generate_password_hash(password)
+            new_user = User(username=username, password=hashed_password, email=email)
+            db.session.add(new_user)
+            db.session.commit()
+            flash('Account created successfully')
             return redirect(url_for('login'))
-        login_user(user, remember=form.remember_me.data)
-        return redirect(url_for('index'))
-    return render_template('login.html', title='Sign In', form=form)
+        return render_template('regigister.html')
+
+
+@app.route('/')
+def index():
+    if current_user.is_authenticated():
+        return render_template('index.html', useer=current_user)
+    else:
+        return redirect(url_for('login'))
+    
 
 @app.route('/logout')
 def logout():
     logout_user()
     return redirect(url_for('index'))
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
-        if user is None or not user.check_password(form.password.data):
-            flash('Invalid username or password')
-            return redirect(url_for('login'))
-        login_user(user, remember=form.remember_me.data)
-        next_page = request.args.get('next')
-        if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('index')
-        return redirect(next_page)
 
 if __name__ == '__main__':
     with app.app_context():
