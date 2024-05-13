@@ -58,11 +58,17 @@ def registr():
 
 @app.route('/')
 def index():
-    if current_user.is_authenticated():
-        return render_template('index.html', useer=current_user)
+    if current_user.is_authenticated:
+        return render_template('index.html', user=current_user)
     else:
         return redirect(url_for('login'))
     
+@app.route('/profile')
+def profile():
+    if current_user.is_authenticated:
+        return render_template('profile.html', user=current_user)
+    else:
+        return redirect(url_for('login'))
 
 @app.route('/logout')
 def logout():
