@@ -3,4 +3,23 @@
 {% block title %}Вход{% endblock %}
 {% block content %}
 
+    {% if message %}
+    <p> {{message}} </p>
+    {% endif %}
+
+    <form action = "" method="post">
+    <p>
+    <label for="username">Ваше имя</label>
+    <input type="text" name="username">
+    </p>
+        
+    <p>
+    <label for="password">Пароль</label>
+    <input type="password" name="password">
+    </p>
+
+    <p>
+    <input type="submit">
+    </p>
+    </form>
 {% endblock %}

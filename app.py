@@ -19,14 +19,21 @@ login_manager.login_view = "login"
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+dbase = None
+@app.before_request
+def before_request():
+    global dbase
+    dbase = SQLAlchemy()
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('profile'))
-    if request.method== 'POST':
+    if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        user = User.query.get(username = username).first()
+        user = User.query.filter_by(username=username).first()
         if user and check_password_hash(user.password, password):
             login_user(user)
             return redirect(url_for('profile'))
@@ -35,11 +42,11 @@ def login():
     return render_template('login.html')
 
        
-@app.route('/registr', methods=['GET', 'POST'])
-def registr():
+@app.route('/register', methods=['GET', 'POST'])
+def register():
     if current_user.is_authenticated:
         return redirect(url_for('profile'))
-    if request.method== 'POST':
+    if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
         email = request.form['email']
@@ -52,9 +59,10 @@ def registr():
             new_user = User(username=username, password=hashed_password, email=email)
             db.session.add(new_user)
             db.session.commit()
+            login_user(new_user)
             flash('Account created successfully')
             return redirect(url_for('login'))
-        return render_template('regigister.html')
+    return render_template('registr.html')
 
 
 @app.route('/')
@@ -63,6 +71,7 @@ def index():
         return render_template('index.html', user=current_user)
     else:
         return redirect(url_for('login'))
+
     
 @app.route('/profile')
 def profile():
