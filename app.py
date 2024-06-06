@@ -5,10 +5,16 @@ from flask_login import LoginManager, login_user, current_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 from models import User, db
 
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SECRET_KEY'] = 'jhiduh38798f8eu3ho3820'
 db = SQLAlchemy(app)
+
+
+
+with app.app_context():
+    db.create_all()
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -62,7 +68,7 @@ def register():
             login_user(new_user)
             flash('Account created successfully')
             return redirect(url_for('login'))
-    return render_template('registr.html')
+    return render_template('register.html')
 
 
 @app.route('/')
