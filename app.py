@@ -6,16 +6,11 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from models import User, db
 
 
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SECRET_KEY'] = 'jhiduh38798f8eu3ho3820'
-db = SQLAlchemy(app)
-
-app.app_context().push()
-
-with app.app_context():
-    db.create_all()
-
+db.init_app(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -46,14 +41,7 @@ def login():
                 db.session.commit()
                 return redirect('/')
             except:
-                return "Ошибка"
-        else:
-            return render_template("login.html")
-        # if user and check_password_hash(user.password, password):
-        #     login_user(user)
-        #     return redirect(url_for('profile'))
-        # else:
-        #     flash('Неправильное имя или пароль.')
+                return "Неправильное имя или пароль"
     return render_template('login.html')
 
        
@@ -62,38 +50,26 @@ def register():
     if current_user.is_authenticated:
         return redirect(url_for('profile'))
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        email = request.form['email']
+        username = (request.form['username'])
+        password = (request.form['password'])
+        email = (request.form['email'])
+
         user = User.query.filter_by(username=username).first()
 
         if request.method == "POST":
-            username = request.form['username']
-            password = request.form['password']
+            username = (request.form['username'])
+            password = (request.form['password'])
+            email = (request.form['email'])
 
-            user = User(username=username, password=password)
+            user = User(username=username, password=password, email=email)
 
             try:
                 db.session.add(user)
                 db.session.commit()
                 return redirect('/')
             except:
-                return "Ошибка"
-        else:
-            return render_template("login.html")
-
-        # if user:
-        #     flash('Это имя уже занято, попробуйте еще раз.')
-        # else:
-        #     hashed_password = generate_password_hash(password)
-        #     new_user = User(username=username, password=hashed_password, email=email)
-        #     db.session.add(new_user)
-        #     db.session.commit()
-        #     db.session.close()
-        #     login_user(new_user)
-        #     flash('Аккаунт успешно создан!')
-        # return redirect(url_for('profile'))
-    return render_template('register.html')
+                return "Ты где-то Ошибся :)"
+    return render_template ("register.html")
 
 
 

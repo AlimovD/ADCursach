@@ -7,7 +7,6 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(500), nullable=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    birth = db.Column(db.Date, nullable=False)
 
 def __repr__(self):
     return f"<users {{self.username}}>"
