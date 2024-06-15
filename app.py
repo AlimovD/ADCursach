@@ -29,12 +29,14 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        email = request.form['email']
         user = User.query.filter_by(username=username).first()
         if request.method == "POST":
             username = request.form['username']
             password = request.form['password']
+            email = request.form['email']
 
-            user = User(username=username, password=password)
+            user = User(username=username, password=password, email=email)
 
             try:
                 db.session.add(user)
@@ -50,16 +52,16 @@ def register():
     if current_user.is_authenticated:
         return redirect(url_for('profile'))
     if request.method == 'POST':
-        username = (request.form['username'])
-        password = (request.form['password'])
-        email = (request.form['email'])
+        username = request.form['username']
+        password = request.form['password']
+        email = request.form['email']
 
         user = User.query.filter_by(username=username).first()
 
         if request.method == "POST":
-            username = (request.form['username'])
-            password = (request.form['password'])
-            email = (request.form['email'])
+            username = request.form['username']
+            password = request.form['password']
+            email = request.form['email']
 
             user = User(username=username, password=password, email=email)
 
@@ -81,7 +83,7 @@ def index():
     else:
         return redirect(url_for('login'))
 
-    
+ 
 @app.route('/profile')
 def profile():
     if current_user.is_authenticated:
