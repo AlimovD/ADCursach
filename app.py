@@ -24,26 +24,15 @@ def load_user(user_id):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('profile'))
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        email = request.form['email']
         user = User.query.filter_by(username=username).first()
-        if request.method == "POST":
-            username = request.form['username']
-            password = request.form['password']
-            email = request.form['email']
-
-            user = User(username=username, password=password, email=email)
-
-            try:
-                db.session.add(user)
-                db.session.commit()
-                return redirect('/')
-            except:
-                return "Неправильное имя или пароль"
+        if user and check_password_hash(user.password, password):
+            login_user(user)
+            return redirect(url_for('index'))
+        else:
+            flash('НЕПРАВИЛЬНО', 'error')
     return render_template('login.html')
 
        
@@ -51,26 +40,19 @@ def login():
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('profile'))
-    if request.method == 'POST':
+    if request.method == "POST":
         username = request.form['username']
         password = request.form['password']
         email = request.form['email']
 
-        user = User.query.filter_by(username=username).first()
+        user = User(username=username, password=generate_password_hash(password), email=email)
 
-        if request.method == "POST":
-            username = request.form['username']
-            password = request.form['password']
-            email = request.form['email']
-
-            user = User(username=username, password=password, email=email)
-
-            try:
-                db.session.add(user)
-                db.session.commit()
-                return redirect('/')
-            except:
-                return "Ты где-то Ошибся :)"
+        try:
+            db.session.add(user)
+            db.session.commit()
+            return redirect('/')
+        except:
+            return "Ты где-то Ошибся :)"
     return render_template ("register.html")
 
 
