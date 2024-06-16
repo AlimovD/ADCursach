@@ -42,10 +42,11 @@ def register():
         return redirect(url_for('profile'))
     if request.method == "POST":
         username = request.form['username']
-        password = request.form['password']
+        password = request.form['password'] 
         email = request.form['email']
+        phone = request.form['phone']
 
-        user = User(username=username, password=generate_password_hash(password), email=email)
+        user = User(username=username, password=generate_password_hash(password), email=email, phone=phone)
 
         try:
             db.session.add(user)
@@ -54,8 +55,6 @@ def register():
         except:
             return "Ты где-то Ошибся :)"
     return render_template ("register.html")
-
-
 
 
 @app.route('/')
