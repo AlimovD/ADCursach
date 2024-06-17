@@ -1,17 +1,22 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    {% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block content %}
-    <h1>Привет, {{ current_user.username }}!</h1>
-    {% for post in posts %}
-    <div><p>{{ post.author.username }} says: <b>{{ post.body }}</b></p></div>
-    {% endfor %}
+<div class="container">
+    <h1>Найдите лучшие предложения на авиабилеты</h1>
+    <form method="GET">
+        <div class="form-group">
+            <label for="from">Откуда</label>
+            <input type="text" class="form-control" id="from" name="from" placeholder="Введите город вылета">
+        </div>
+        <div class="form-group">
+            <label for="to">Куда</label>
+            <input type="text" class="form-control" id="to" name="to" placeholder="Введите город прибытия">
+        </div>
+        <div class="form-group">
+            <label for="date">Дата</label>
+            <input type="date" class="form-control" id="date" name="date">
+        </div>
+        <button type="submit" class="btn btn-primary">Найти билеты</button>
+    </form>
+</div>
 {% endblock %}
-</body>
-</html>
