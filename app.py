@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from flask_login import LoginManager, login_user, current_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
-from models import User, db
+from models import User, Oteli, db
 
 
 
@@ -59,12 +59,23 @@ def register():
 
 @app.route('/')
 def index():
-    if current_user.is_authenticated:
         return render_template('index.html', user=current_user)
+   
+
+@app.route('/oteli')
+def oteli():
+    if current_user.is_authenticated:
+        return render_template('oteli.html', user=current_user)
+    else:
+        return redirect(url_for('login'))
+ 
+@app.route('/oteli_detail/<int:id>')
+def oteli_detail(id):
+    if current_user.is_authenticated:
+        return render_template('oteli_detail.html', user=current_user)
     else:
         return redirect(url_for('login'))
 
- 
 @app.route('/profile')
 def profile():
     if current_user.is_authenticated:
