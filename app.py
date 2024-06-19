@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
+from flask_admin.contrib.sqla import ModelView
 from datetime import datetime
+from flask_admin import Admin
 from flask_login import LoginManager, login_user, current_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 from models import User, Oteli, db
@@ -16,6 +18,9 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
+admin = Admin(app, name='Панель администратора', template_mode='bootstrap3')
+admin.add_view(ModelView(User, db.session))
+admin.add_view(ModelView(Oteli, db.session))
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -65,14 +70,16 @@ def index():
 @app.route('/oteli')
 def oteli():
     if current_user.is_authenticated:
-        return render_template('oteli.html', user=current_user)
+        oteli_list = Oteli.query.all()
+        return render_template('oteli.html', oteli_list=oteli_list, user=current_user)
     else:
         return redirect(url_for('login'))
  
 @app.route('/oteli_detail/<int:id>')
 def oteli_detail(id):
     if current_user.is_authenticated:
-        return render_template('oteli_detail.html', user=current_user)
+        oteli = Oteli.query.get(id)
+        return render_template('oteli_detail.html', user=current_user, oteli=oteli)
     else:
         return redirect(url_for('login'))
 
