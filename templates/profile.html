@@ -53,4 +53,17 @@
         </div>
     </div>
 </div>
+
+<h2 class="mb-3">Ваши забронированные отели</h2>
+        {% if current_user.bookings %}
+            <ul>
+                {% for booking in current_user.bookings %}
+                    <li>{{ booking.hotel.name }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>У Вас пока нет забронированных отелей.</p>
+        {% endif %}
+
+
 {% endblock %}

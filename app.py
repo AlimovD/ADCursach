@@ -1,11 +1,15 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_admin.contrib.sqla import ModelView
+from flask_wtf import FlaskForm
+from wtforms import DateField
+from sqlalchemy import DateTime
 from datetime import datetime
 from flask_admin import Admin
+from flask_admin.contrib.sqla.fields import FileUploadField
 from flask_login import LoginManager, login_user, current_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
-from models import User, Oteli, db
+from models import User, Oteli, Booking, db
 
 
 
@@ -21,6 +25,8 @@ login_manager.login_view = "login"
 admin = Admin(app, name='Панель администратора', template_mode='bootstrap3')
 admin.add_view(ModelView(User, db.session))
 admin.add_view(ModelView(Oteli, db.session))
+
+current_time = datetime.now()
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -73,6 +79,18 @@ def oteli():
         oteli_list = Oteli.query.all()
         return render_template('oteli.html', oteli_list=oteli_list, user=current_user)
     else:
+        return redirect(url_for('login'))
+    
+@app.route('/book_hotel/<int:id>', methods=['POST'])
+def book_hotel(id):
+    if current_user.is_authenticated:
+        booking = Booking(user_id=current_user.id, hotel_id=id)
+        db.session.add(booking)
+        db.session.commit()
+        flash('Отель успешно забронирован', 'success')
+        return redirect(url_for('profile'))
+    else:
+        flash('Вы должны войти, чтобы забронировать отель', 'error')
         return redirect(url_for('login'))
  
 @app.route('/oteli_detail/<int:id>')

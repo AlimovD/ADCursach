@@ -12,7 +12,9 @@
                 <h1>Название: {{ oteli.name }}</h1>
                 <p>Описание: {{ oteli.description }}</p>
                 <p>Цена: {{ oteli.price }} руб.</p>
-                <a href="#" class="btn btn-primary">Забронировать</a>
+                <form action="{{ url_for('book_hotel', id=oteli.id) }}" method="post">
+                    <button type="submit" class="btn btn-primary">Забронировать</button>
+                </form>
             </div>
         </div>
     </div>
