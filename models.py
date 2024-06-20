@@ -30,7 +30,11 @@ class Booking(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     hotel_id = db.Column(db.Integer, db.ForeignKey('oteli.id'), nullable=False)
     date_booked = db.Column(db.DateTime, nullable=False, default=datetime.now)
-    
+
+
+class City(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), unique=True, nullable=False)
 
 
 def __repr__(self):

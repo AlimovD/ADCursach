@@ -6,10 +6,11 @@ from wtforms import DateField
 from sqlalchemy import DateTime
 from datetime import datetime
 from flask_admin import Admin
+from wtforms import SelectField
 
 from flask_login import LoginManager, login_user, current_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
-from models import User, Oteli, Booking, db
+from models import User, Oteli, Booking, City, db
 
 
 
@@ -27,6 +28,11 @@ admin.add_view(ModelView(User, db.session))
 admin.add_view(ModelView(Oteli, db.session))
 
 current_time = datetime.now()
+
+
+class SearchForm(FlaskForm):
+    from_city = SelectField('Откуда', choices=[('Москва'), ('Дубай'), ('Владивосток'), ('Калининград'), ('Ростов-на-Дону '), ('Самара'), ('Воронеж')])
+    to_city = SelectField('Куда', choices=[('Москва'), ('Дубай'), ('Владивосток'), ('Калининград'), ('Ростов-на-Дону '), ('Самара'), ('Воронеж')])
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -70,7 +76,10 @@ def register():
 
 @app.route('/')
 def index():
-        return render_template('index.html', user=current_user)
+        form = SearchForm()
+        return render_template('index.html', user=current_user, form=form)
+
+
    
 
 @app.route('/oteli')
@@ -102,6 +111,16 @@ def delete_booking(id):
         flash('Отель успешно удален из забронированных', 'success')
     return redirect(url_for('profile'))
  
+
+@app.route('/cities')
+def cities():
+    if current_user.is_authenticated:
+        city_list = City.query.all()
+        return render_template('cities.html', city_list=city_list, user=current_user)
+    else:
+        return redirect(url_for('login'))
+
+
 @app.route('/oteli_detail/<int:id>')
 def oteli_detail(id):
     if current_user.is_authenticated:
@@ -113,7 +132,10 @@ def oteli_detail(id):
 @app.route('/profile')
 def profile():
     if current_user.is_authenticated:
-        return render_template('profile.html', user=current_user)
+        city_from = request.args.get('from_city')
+        city_to = request.args.get('to_city')
+        bookings = Booking.query.filter_by(user_id=current_user.id).all()
+        return render_template('profile.html', user=current_user, city_from=city_from, city_to=city_to, bookings=bookings)
     else:
         return redirect(url_for('login'))
 
