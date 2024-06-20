@@ -6,7 +6,7 @@ from wtforms import DateField
 from sqlalchemy import DateTime
 from datetime import datetime
 from flask_admin import Admin
-from flask_admin.contrib.sqla.fields import FileUploadField
+
 from flask_login import LoginManager, login_user, current_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 from models import User, Oteli, Booking, db
@@ -92,6 +92,15 @@ def book_hotel(id):
     else:
         flash('Вы должны войти, чтобы забронировать отель', 'error')
         return redirect(url_for('login'))
+    
+@app.route('/delete_booking/<int:id>', methods=['POST'])
+def delete_booking(id):
+    booking = Booking.query.get(id)
+    if booking:
+        db.session.delete(booking)
+        db.session.commit()
+        flash('Отель успешно удален из забронированных', 'success')
+    return redirect(url_for('profile'))
  
 @app.route('/oteli_detail/<int:id>')
 def oteli_detail(id):

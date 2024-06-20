@@ -55,15 +55,20 @@
 </div>
 
 <h2 class="mb-3">Ваши забронированные отели</h2>
-        {% if current_user.bookings %}
-            <ul>
-                {% for booking in current_user.bookings %}
-                    <li>{{ booking.hotel.name }}</li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>У Вас пока нет забронированных отелей.</p>
-        {% endif %}
+{% if current_user.bookings %}
+    <ul>
+        {% for booking in current_user.bookings %}
+            <li>
+                {{ booking.hotel.name }}
+                <form action="{{ url_for('delete_booking', id=booking.id) }}" method="post">
+                    <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>У Вас пока нет забронированных отелей.</p>
+{% endif %}
 
 
 {% endblock %}
